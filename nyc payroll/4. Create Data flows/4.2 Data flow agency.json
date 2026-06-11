@@ -1,0 +1,55 @@
+{
+    "name": "dataflow_agency",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "adls_agencyMaster",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sourceagencymaster"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "sqldb_NYC_Payroll_AGENCY_MD",
+                        "type": "DatasetReference"
+                    },
+                    "name": "sinkagencymasterMDsynapse",
+                    "rejectedDataLinkedService": {
+                        "referenceName": "AzureDataLakeStorage1",
+                        "type": "LinkedServiceReference"
+                    }
+                }
+            ],
+            "transformations": [],
+            "scriptLines": [
+                "source(output(",
+                "          AgencyID as string,",
+                "          AgencyName as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     limit: 100,",
+                "     ignoreNoFilesFound: false) ~> sourceagencymaster",
+                "sourceagencymaster sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          AgencyID as string,",
+                "          AgencyName as string",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     errorHandlingOption: 'stopOnFirstError') ~> sinkagencymasterMDsynapse"
+            ]
+        }
+    }
+}
